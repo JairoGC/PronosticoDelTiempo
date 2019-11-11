@@ -6,6 +6,8 @@ import android.widget.TextView
 import com.example.sunshinekotlin.utilities.OpenWeatherJsonUtils
 import com.example.sunshinekotlin.utilities.NetworkUtils
 import android.os.AsyncTask
+import android.view.Menu
+import android.view.MenuItem
 import com.example.sunshinekotlin.data.SunshinePreferences
 
 class MainActivity : AppCompatActivity() {
@@ -52,5 +54,20 @@ class MainActivity : AppCompatActivity() {
                 mWeatherTextView?.append(weatherString + "\n\n\n")
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.forecast, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == R.id.action_refresh) {
+            mWeatherTextView?.text = ""
+            loadWeatherData()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
