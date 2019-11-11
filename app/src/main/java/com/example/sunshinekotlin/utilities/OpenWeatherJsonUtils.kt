@@ -10,7 +10,7 @@ import java.net.HttpURLConnection
 object OpenWeatherJsonUtils{
 
     @Throws(JSONException::class)
-    fun getSimpleWeatherStringsFromJson(context: Context, forecastJsonStr: String): List<String?> {
+    fun getSimpleWeatherStringsFromJson(context: Context, forecastJsonStr: String): List<String> {
 
         val OWM_LIST = "list"
         val OWM_TEMPERATURE = "temp"
@@ -20,7 +20,7 @@ object OpenWeatherJsonUtils{
         val OWM_DESCRIPTION = "main"
         val OWM_MESSAGE_CODE = "cod"
 
-        val parsedWeatherData = mutableListOf<String?>()
+        val parsedWeatherData = mutableListOf<String>()
 
         val forecastJson = JSONObject(forecastJsonStr)
 
@@ -32,10 +32,10 @@ object OpenWeatherJsonUtils{
                 }
                 HttpURLConnection.HTTP_NOT_FOUND ->
                     /* Location invalid */
-                    return parsedWeatherData
+                    return listOf()
                 else ->
                     /* Server probably down */
-                    return parsedWeatherData
+                    return listOf()
             }
         }
 
@@ -66,7 +66,6 @@ object OpenWeatherJsonUtils{
 
             parsedWeatherData.add("$date - $description - $highAndLow")
         }
-
         return parsedWeatherData
     }
 

@@ -4,6 +4,9 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import android.net.Uri;
+import android.util.Log
+import java.net.MalformedURLException
 
 object NetworkUtils{
 
@@ -25,8 +28,21 @@ object NetworkUtils{
     val DAYS_PARAM = "cnt"
 
     fun buildUrl(locationQuery: String): URL? {
-        /** This will be implemented in a future lesson  */
-        return null
+        val builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+            .appendQueryParameter(QUERY_PARAM, locationQuery)
+            .appendQueryParameter(FORMAT_PARAM, format)
+            .appendQueryParameter(UNITS_PARAM, units)
+            .appendQueryParameter(DAYS_PARAM, numDays.toString())
+            .build()
+
+        var url: URL? = null
+        try {
+            url = URL(builtUri.toString())
+        } catch (e: MalformedURLException) {
+            e.printStackTrace()
+        }
+        Log.v(TAG, "Built URI " + url?.toString())
+        return url
     }
 
     fun buildUrl(lat: Double?, lon: Double?): URL? {
@@ -35,10 +51,10 @@ object NetworkUtils{
     }
 
     @Throws(IOException::class)
-    fun getResponseFromHttpUrl(url: URL): String? {
-        val urlConnection = url.openConnection() as HttpURLConnection
+    fun getResponseFromHttpUrl(url: URL?): String {
+        val urlConnection = url?.openConnection() as HttpURLConnection
         try {
-            val `in` = urlConnection.getInputStream()
+            val `in` = urlConnection.inputStream
 
             val scanner = Scanner(`in`)
             scanner.useDelimiter("\\A")
@@ -47,7 +63,7 @@ object NetworkUtils{
             return if (hasInput) {
                 scanner.next()
             } else {
-                null
+                ""
             }
         } finally {
             urlConnection.disconnect()
