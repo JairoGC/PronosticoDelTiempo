@@ -10,20 +10,34 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
+import androidx.recyclerview.widget.RecyclerView
 import com.example.sunshinekotlin.data.SunshinePreferences
+import androidx.recyclerview.widget.LinearLayoutManager
+import android.widget.Toast
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
 
-    var mWeatherTextView: TextView? = null
     var mErrorMessageDisplay: TextView? = null
     var mLoadingIndicator: ProgressBar? = null
+
+    private var mRecyclerView: RecyclerView? = null
+    private var mForecastAdapter: ForecastAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forecast)
-        mWeatherTextView = findViewById(R.id.tv_weather_data)
+
         mErrorMessageDisplay = findViewById(R.id.tv_error_message_display)
         mLoadingIndicator = findViewById(R.id.pb_loading_indicator)
+
+        mRecyclerView = findViewById(R.id.recyclerview_forecast)
+
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        mRecyclerView?.layoutManager = layoutManager
+        mRecyclerView?.setHasFixedSize(true)
+        mForecastAdapter = ForecastAdapter(this)
+        mRecyclerView?.adapter = mForecastAdapter
+
         loadWeatherData()
     }
 
@@ -35,12 +49,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun showWeatherDataView(){
         mErrorMessageDisplay?.visibility = View.INVISIBLE
-        mWeatherTextView?.visibility = View.VISIBLE
+        mRecyclerView?.visibility = View.VISIBLE
     }
 
     private fun  showErrorMessage(){
         mErrorMessageDisplay?.visibility = View.VISIBLE
-        mWeatherTextView?.visibility = View.INVISIBLE
+        mRecyclerView?.visibility = View.INVISIBLE
+    }
+
+    override fun onClick(weatherForDay: String) {
+        Toast.makeText(this, weatherForDay, Toast.LENGTH_SHORT).show()
     }
 
     inner class FetchWeatherTask : AsyncTask<String, Void, List<String>>() {
@@ -75,13 +93,10 @@ class MainActivity : AppCompatActivity() {
             mLoadingIndicator?.visibility = View.INVISIBLE
             if (weatherData != null) {
                 showWeatherDataView()
-                for (weatherString in weatherData) {
-                    mWeatherTextView?.append(weatherString + "\n\n\n")
-                }
+                mForecastAdapter?.setWeatherData(weatherData)
             }else{
                 showErrorMessage()
             }
-
         }
     }
 
@@ -93,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == R.id.action_refresh) {
-            mWeatherTextView?.text = ""
+            mForecastAdapter?.setWeatherData(listOf())
             loadWeatherData()
             return true
         }
