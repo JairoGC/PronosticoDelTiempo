@@ -14,6 +14,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sunshinekotlin.data.SunshinePreferences
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.Toast
+import android.content.Intent
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
 
@@ -58,7 +65,8 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
     }
 
     override fun onClick(weatherForDay: String) {
-        Toast.makeText(this, weatherForDay, Toast.LENGTH_SHORT).show()
+        val intentToStartDetailActivity = Intent(this, DetailActivity::class.java)
+        startActivity(intentToStartDetailActivity)
     }
 
     inner class FetchWeatherTask : AsyncTask<String, Void, List<String>>() {
