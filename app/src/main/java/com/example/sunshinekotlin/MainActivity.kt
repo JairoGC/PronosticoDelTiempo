@@ -13,16 +13,13 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sunshinekotlin.data.SunshinePreferences
 import androidx.recyclerview.widget.LinearLayoutManager
-import android.widget.Toast
 import android.content.Intent
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import android.net.Uri
+import android.util.Log
 
 class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
+
+    private val TAG = MainActivity::class.java.simpleName
 
     var mErrorMessageDisplay: TextView? = null
     var mLoadingIndicator: ProgressBar? = null
@@ -115,12 +112,34 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == R.id.action_refresh) {
-            mForecastAdapter?.setWeatherData(listOf())
-            loadWeatherData()
-            return true
+        return when (item.itemId) {
+            R.id.action_refresh -> {
+                mForecastAdapter?.setWeatherData(listOf())
+                loadWeatherData()
+                true
+            }
+            R.id.action_map -> {
+                openLocationInMap()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    private fun openLocationInMap() {
+        val addressString = "Piura, Peru"
+        val geoLocation = Uri.parse("geo:0,0?q=$addressString")
+
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = geoLocation
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Log.d(
+                TAG,
+                "Couldn't call ${geoLocation.toString()}, no receiving apps installed!"
+            )
+        }
     }
 }
