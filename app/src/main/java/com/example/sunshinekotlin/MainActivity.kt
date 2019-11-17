@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
 
     override fun onClick(weatherForDay: String) {
         val intentToStartDetailActivity = Intent(this, DetailActivity::class.java)
+        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherForDay)
         startActivity(intentToStartDetailActivity)
     }
 

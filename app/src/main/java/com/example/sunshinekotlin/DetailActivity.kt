@@ -2,12 +2,8 @@ package com.example.sunshinekotlin
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import android.content.Intent
+import android.widget.TextView
 
 class DetailActivity : AppCompatActivity() {
 
@@ -16,5 +12,14 @@ class DetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
+
+        val mWeatherDisplay: TextView = findViewById(R.id.tv_display_weather)
+
+        if (intent != null) {
+            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+                val mForecast = intent.getStringExtra(Intent.EXTRA_TEXT)
+                mWeatherDisplay.text = mForecast
+            }
+        }
     }
 }
