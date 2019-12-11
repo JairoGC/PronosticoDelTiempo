@@ -1,25 +1,31 @@
 package com.example.sunshinekotlin
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.widget.TextView
-import com.example.sunshinekotlin.utilities.OpenWeatherJsonUtils
-import com.example.sunshinekotlin.utilities.NetworkUtils
-import android.os.AsyncTask
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.AsyncTaskLoader
+import androidx.loader.content.Loader
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sunshinekotlin.data.SunshinePreferences
-import androidx.recyclerview.widget.LinearLayoutManager
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
+import com.example.sunshinekotlin.utilities.NetworkUtils
+import com.example.sunshinekotlin.utilities.OpenWeatherJsonUtils
 
-class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
+
+class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler,
+    LoaderManager.LoaderCallbacks<List<String>> {
 
     private val TAG = MainActivity::class.java.simpleName
+
+    private val FORECAST_LOADER_ID = 0
 
     var mErrorMessageDisplay: TextView? = null
     var mLoadingIndicator: ProgressBar? = null
@@ -42,13 +48,61 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         mForecastAdapter = ForecastAdapter(this)
         mRecyclerView?.adapter = mForecastAdapter
 
-        loadWeatherData()
+        supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this@MainActivity)
     }
 
-    private fun loadWeatherData() {
-        showWeatherDataView()
-        val location = SunshinePreferences.getPreferredWeatherLocation(this)
-        FetchWeatherTask().execute(location)
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<List<String>> {
+        return object : AsyncTaskLoader<List<String>>(this) {
+
+            var mWeatherData: List<String>? = null
+
+            override fun onStartLoading() {
+                if (mWeatherData != null) {
+                    deliverResult(mWeatherData)
+                } else {
+                    mLoadingIndicator?.visibility = View.VISIBLE
+                    forceLoad()
+                }
+            }
+
+            override fun loadInBackground(): List<String> {
+                val locationQuery = SunshinePreferences
+                    .getPreferredWeatherLocation(this@MainActivity)
+                val weatherRequestUrl = NetworkUtils.buildUrl(locationQuery)
+
+                return try {
+                    val jsonWeatherResponse = NetworkUtils
+                        .getResponseFromHttpUrl(weatherRequestUrl)
+
+                    OpenWeatherJsonUtils
+                        .getSimpleWeatherStringsFromJson(this@MainActivity, jsonWeatherResponse)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    showErrorMessage()
+                    listOf()
+                }
+            }
+
+            override fun deliverResult(data: List<String>?) {
+                mWeatherData = data
+                super.deliverResult(data)
+            }
+        }
+    }
+
+    override fun onLoadFinished(loader: Loader<List<String>>, data: List<String>) {
+        mLoadingIndicator?.visibility = View.INVISIBLE
+        mForecastAdapter?.setWeatherData(data)
+        if (data.isNotEmpty()) {
+            showWeatherDataView()
+        }
+    }
+
+    override fun onLoaderReset(loader: Loader<List<String>>) {
+    }
+
+    private fun invalidateData() {
+        mForecastAdapter?.setWeatherData(listOf())
     }
 
     private fun showWeatherDataView(){
@@ -67,45 +121,6 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         startActivity(intentToStartDetailActivity)
     }
 
-    inner class FetchWeatherTask : AsyncTask<String, Void, List<String>>() {
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-            mLoadingIndicator?.visibility = View.VISIBLE
-        }
-
-        override fun doInBackground(vararg params: String): List<String>? {
-
-            if (params.isEmpty()) {
-                return listOf()
-            }
-
-            val location = params[0]
-            val weatherRequestUrl = NetworkUtils.buildUrl(location)
-
-            return try {
-                val jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl)
-
-                OpenWeatherJsonUtils
-                    .getSimpleWeatherStringsFromJson(this@MainActivity, jsonWeatherResponse)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
-        }
-
-        override fun onPostExecute(weatherData: List<String>?) {
-            mLoadingIndicator?.visibility = View.INVISIBLE
-            if (weatherData != null) {
-                showWeatherDataView()
-                mForecastAdapter?.setWeatherData(weatherData)
-            }else{
-                showErrorMessage()
-            }
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.forecast, menu)
         return true
@@ -114,8 +129,8 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_refresh -> {
-                mForecastAdapter?.setWeatherData(listOf())
-                loadWeatherData()
+                invalidateData()
+                supportLoaderManager.restartLoader(FORECAST_LOADER_ID, null, this)
                 true
             }
             R.id.action_map -> {
@@ -138,7 +153,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         } else {
             Log.d(
                 TAG,
-                "Couldn't call ${geoLocation.toString()}, no receiving apps installed!"
+                "Couldn't call $geoLocation, no receiving apps installed!"
             )
         }
     }
