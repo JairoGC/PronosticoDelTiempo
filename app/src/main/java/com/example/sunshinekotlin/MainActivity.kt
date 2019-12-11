@@ -137,6 +137,11 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
                 openLocationInMap()
                 true
             }
+            R.id.action_settings -> {
+                val startSettingsActivity = Intent(this, SettingsActivity::class.java)
+                startActivity(startSettingsActivity)
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

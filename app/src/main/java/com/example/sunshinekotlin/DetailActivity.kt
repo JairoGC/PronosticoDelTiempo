@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.TextView
 import androidx.core.app.ShareCompat
 
@@ -38,5 +39,15 @@ class DetailActivity : AppCompatActivity() {
             .setType("text/plain")
             .setText(mForecast?:"" + FORECAST_SHARE_HASHTAG)
             .intent
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                val startSettingsActivity = Intent(this, SettingsActivity::class.java)
+                startActivity(startSettingsActivity)
+                return true
+            }else -> super.onOptionsItemSelected(item)
+        }
     }
 }
