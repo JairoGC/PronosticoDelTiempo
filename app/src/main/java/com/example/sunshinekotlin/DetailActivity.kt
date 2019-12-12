@@ -19,11 +19,9 @@ class DetailActivity : AppCompatActivity() {
 
         val mWeatherDisplay: TextView = findViewById(R.id.tv_display_weather)
 
-        if (intent != null) {
-            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
-                mForecast = intent.getStringExtra(Intent.EXTRA_TEXT)
-                mWeatherDisplay.text = mForecast
-            }
+        if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+            mForecast = intent.getStringExtra(Intent.EXTRA_TEXT)
+            mWeatherDisplay.text = mForecast
         }
     }
 

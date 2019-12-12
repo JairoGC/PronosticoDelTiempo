@@ -1,6 +1,7 @@
 package com.example.sunshinekotlin
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -13,17 +14,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.AsyncTaskLoader
 import androidx.loader.content.Loader
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sunshinekotlin.data.SunshinePreferences
+import com.example.sunshinekotlin.data.SunshinePreferences.getPreferredWeatherLocation
 import com.example.sunshinekotlin.utilities.NetworkUtils
 import com.example.sunshinekotlin.utilities.OpenWeatherJsonUtils
 
 
 class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler,
-    LoaderManager.LoaderCallbacks<List<String>> {
+    LoaderManager.LoaderCallbacks<List<String>>, SharedPreferences.OnSharedPreferenceChangeListener  {
 
     private val TAG = MainActivity::class.java.simpleName
+    private var PREFERENCES_HAVE_BEEN_UPDATED = false
 
     private val FORECAST_LOADER_ID = 0
 
@@ -49,6 +53,9 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         mRecyclerView?.adapter = mForecastAdapter
 
         supportLoaderManager.initLoader(FORECAST_LOADER_ID, null, this@MainActivity)
+
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<List<String>> {
@@ -115,6 +122,21 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         mRecyclerView?.visibility = View.INVISIBLE
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (PREFERENCES_HAVE_BEEN_UPDATED) {
+            Log.d(TAG, "onStart: preferences were updated");
+            getSupportLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this)
+            PREFERENCES_HAVE_BEEN_UPDATED = false
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .unregisterOnSharedPreferenceChangeListener(this)
+    }
+
     override fun onClick(weatherForDay: String) {
         val intentToStartDetailActivity = Intent(this, DetailActivity::class.java)
         intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherForDay)
@@ -147,7 +169,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
     }
 
     private fun openLocationInMap() {
-        val addressString = "Piura, Peru"
+        val addressString = getPreferredWeatherLocation(this)
         val geoLocation = Uri.parse("geo:0,0?q=$addressString")
 
         val intent = Intent(Intent.ACTION_VIEW)
@@ -161,5 +183,9 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
                 "Couldn't call $geoLocation, no receiving apps installed!"
             )
         }
+    }
+
+    override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+        PREFERENCES_HAVE_BEEN_UPDATED = true
     }
 }

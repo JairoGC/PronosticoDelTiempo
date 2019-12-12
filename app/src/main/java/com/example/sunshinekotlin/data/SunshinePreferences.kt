@@ -1,6 +1,9 @@
 package com.example.sunshinekotlin.data
 
 import android.content.Context
+import androidx.preference.PreferenceManager
+import com.example.sunshinekotlin.R
+
 
 object SunshinePreferences{
 
@@ -26,13 +29,21 @@ object SunshinePreferences{
     }
 
     fun getPreferredWeatherLocation(context: Context): String {
-        /** This will be implemented in a future lesson  */
-        return getDefaultWeatherLocation()
+        var prefs = PreferenceManager
+            .getDefaultSharedPreferences(context)
+        val keyForLocation = context.getString(R.string.pref_location_key)
+        val defaultLocation = context.getString(R.string.pref_location_default)
+        return prefs?.getString(keyForLocation, defaultLocation)?:""
     }
 
     fun isMetric(context: Context): Boolean {
-        /** This will be implemented in a future lesson  */
-        return true
+        val prefs = PreferenceManager
+            .getDefaultSharedPreferences(context)
+        val keyForUnits = context.getString(R.string.pref_units_key)
+        val defaultUnits = context.getString(R.string.pref_units_metric)
+        val preferredUnits = prefs.getString(keyForUnits, defaultUnits)?:""
+        val metric = context.getString(R.string.pref_units_metric)
+        return metric == preferredUnits
     }
 
     fun getLocationCoordinates(context: Context): DoubleArray {
