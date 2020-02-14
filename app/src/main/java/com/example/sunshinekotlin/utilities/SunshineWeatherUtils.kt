@@ -36,7 +36,7 @@ object SunshineWeatherUtils{
         return "$formattedHigh / $formattedLow"
     }
 
-    fun getFormattedWind(context: Context, windSpeed: Float, degrees: Float): String {
+    fun getFormattedWind(context: Context, windSpeed: Double, degrees: Double): String {
         var windSpeed = windSpeed
 
         var windFormat = R.string.format_wind_kmh

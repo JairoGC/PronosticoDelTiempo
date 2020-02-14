@@ -18,5 +18,5 @@ interface WeatherDao {
     fun deleteWeather(weatherEntry: WeatherEntry)
 
     @Query("SELECT * FROM weather WHERE weather_id = :uid")
-    fun loadWeatherById(uid: Int): LiveData<WeatherEntry?>
+    fun loadWeatherById(uid: Int): LiveData<WeatherEntry>
 }

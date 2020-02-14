@@ -61,20 +61,6 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         startService(incrementWaterCountIntent)
     }
 
-    private fun invalidateData() {
-        mForecastAdapter.setWeatherData(listOf())
-    }
-
-    private fun showWeatherDataView() {
-        mLoadingIndicator.visibility = View.INVISIBLE
-        mRecyclerView.visibility = View.VISIBLE
-    }
-
-    private fun showLoading() {
-        mLoadingIndicator.visibility = View.VISIBLE
-        mRecyclerView.visibility = View.INVISIBLE
-    }
-
     override fun onClick(weatherId: Int?) {
         val intentToStartDetailActivity = Intent(this, DetailActivity::class.java)
         intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherId)
