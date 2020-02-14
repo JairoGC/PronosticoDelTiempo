@@ -23,8 +23,6 @@ object SunshineWeatherUtils{
             temperature = celsiusToFahrenheit(temperature)
             temperatureFormatResourceId = R.string.format_temperature_fahrenheit
         }
-
-        /* For presentation, assume the user doesn't care about tenths of a degree. */
         return String.format(context.getString(temperatureFormatResourceId), temperature)
     }
 
@@ -134,10 +132,6 @@ object SunshineWeatherUtils{
     }
 
     fun getIconResourceForWeatherCondition(weatherId: Int): Int {
-        /*
-         * Based on weather code data found at:
-         * See http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
-         */
         if (weatherId in 200..232) {
             return R.drawable.ic_storm
         } else if (weatherId in 300..321) {
@@ -165,10 +159,6 @@ object SunshineWeatherUtils{
     }
 
     fun getArtResourceForWeatherCondition(weatherId: Int): Int {
-        /*
-         * Based on weather code data found at:
-         * http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
-         */
         if (weatherId in 200..232) {
             return R.drawable.art_storm
         } else if (weatherId in 300..321) {

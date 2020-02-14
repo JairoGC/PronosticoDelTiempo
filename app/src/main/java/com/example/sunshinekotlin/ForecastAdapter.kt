@@ -1,17 +1,23 @@
 package com.example.sunshinekotlin
 
+import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
+import com.example.sunshinekotlin.data.WeatherEntry
+import com.example.sunshinekotlin.utilities.SunshineDateUtils.getFriendlyDateString
+import com.example.sunshinekotlin.utilities.SunshineWeatherUtils.formatHighLows
+import com.example.sunshinekotlin.utilities.SunshineWeatherUtils.getStringForWeatherCondition
 
-class ForecastAdapter(val mClickHandler: ForecastAdapterOnClickHandler) : RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>(){
 
-    private var mWeatherData: List<String>? = null
+class ForecastAdapter(private val mContext: Context, val mClickHandler: ForecastAdapterOnClickHandler) : RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>(){
+
+    private var mWeatherData: List<WeatherEntry> = listOf()
 
     interface ForecastAdapterOnClickHandler {
-        fun onClick(weatherForDay: String)
+        fun onClick(weatherId: Int?)
     }
 
     inner class ForecastAdapterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
@@ -24,32 +30,41 @@ class ForecastAdapter(val mClickHandler: ForecastAdapterOnClickHandler) : Recycl
         }
 
         override fun onClick(p0: View?) {
-            val adapterPosition = adapterPosition
-            val weatherForDay = mWeatherData?.get(adapterPosition)?:""
-            mClickHandler.onClick(weatherForDay)
+            val weatherEntry = mWeatherData[adapterPosition]
+            mClickHandler.onClick(weatherEntry.weather_id)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastAdapterViewHolder {
-        val context = parent.context
-        val layoutIdForListItem = R.layout.forecast_list_item
-        val inflater = LayoutInflater.from(context)
+        val inflater = LayoutInflater.from(parent.context)
         val shouldAttachToParentImmediately = false
 
-        val view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately)
+        val view = inflater.inflate(R.layout.forecast_list_item, parent, shouldAttachToParentImmediately)
         return ForecastAdapterViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ForecastAdapterViewHolder, position: Int) {
-        val weatherForThisDay = mWeatherData?.get(position)
-        holder.mWeatherTextView.text = weatherForThisDay
+        val weatherEntry = mWeatherData[position]
+        holder.mWeatherTextView.text = weatherEntry.date.toString()
+
+        val weatherId = weatherEntry.weather_id?:0
+        val dateInMillis: Long = weatherEntry.date.time
+        val dateString = getFriendlyDateString(mContext, dateInMillis, false)
+        val description = getStringForWeatherCondition(mContext, weatherId)
+        val highInCelsius: Double = weatherEntry.max
+        val lowInCelsius: Double = weatherEntry.min
+
+        val highAndLowTemperature = formatHighLows(mContext, highInCelsius, lowInCelsius)
+        val weatherSummary = "$dateString - $description - $highAndLowTemperature"
+
+        holder.mWeatherTextView.text = weatherSummary
     }
 
     override fun getItemCount(): Int {
-        return mWeatherData?.size?:0
+        return mWeatherData.size
     }
 
-    fun setWeatherData(weatherData: List<String>) {
+    fun setWeatherData(weatherData: List<WeatherEntry>) {
         mWeatherData = weatherData
         notifyDataSetChanged()
     }

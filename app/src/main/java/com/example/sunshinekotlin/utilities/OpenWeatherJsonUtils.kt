@@ -2,15 +2,18 @@ package com.example.sunshinekotlin.utilities
 
 import android.content.ContentValues
 import android.content.Context
+import android.util.Log
+import com.example.sunshinekotlin.data.WeatherEntry
 import org.json.JSONObject
 import org.json.JSONException
 import java.net.HttpURLConnection
+import java.util.*
 
 
 object OpenWeatherJsonUtils{
 
     @Throws(JSONException::class)
-    fun getSimpleWeatherStringsFromJson(context: Context, forecastJsonStr: String): List<String> {
+    fun getSimpleWeatherStringsFromJson(context: Context, forecastJsonStr: String): List<WeatherEntry> {
 
         val OWM_LIST = "list"
         val OWM_TEMPERATURE = "temp"
@@ -20,7 +23,7 @@ object OpenWeatherJsonUtils{
         val OWM_DESCRIPTION = "main"
         val OWM_MESSAGE_CODE = "cod"
 
-        val parsedWeatherData = mutableListOf<String>()
+        val parsedWeatherData = mutableListOf<WeatherEntry>()
 
         val forecastJson = JSONObject(forecastJsonStr)
 
@@ -46,15 +49,10 @@ object OpenWeatherJsonUtils{
         val startDay = SunshineDateUtils.normalizeDate(utcDate)
 
         for (i in 0 until weatherArray.length()) {
-
             val dayForecast = weatherArray.getJSONObject(i)
 
-            /*
-             * We ignore all the datetime values embedded in the JSON and assume that
-             * the values are returned in-order by day (which is not guaranteed to be correct).
-             */
             val dateTimeMillis = startDay + SunshineDateUtils.DAY_IN_MILLIS * i
-            val date = SunshineDateUtils.getFriendlyDateString(context, dateTimeMillis, false)
+            //val date = SunshineDateUtils.getFriendlyDateString(context, dateTimeMillis, false)
 
             val weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0)
             val description = weatherObject.getString(OWM_DESCRIPTION)
@@ -64,7 +62,11 @@ object OpenWeatherJsonUtils{
             val low = temperatureObject.getDouble(OWM_MIN)
             val highAndLow = SunshineWeatherUtils.formatHighLows(context, high, low)
 
-            parsedWeatherData.add("$date - $description - $highAndLow")
+            val date = Date(dateTimeMillis)
+            val weatherEntry = WeatherEntry(low, high, high,
+                high, low, low, date)
+
+            parsedWeatherData.add(weatherEntry)
         }
         return parsedWeatherData
     }
