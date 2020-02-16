@@ -11,12 +11,9 @@ interface WeatherDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertWeather(weatherEntry: List<WeatherEntry>)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateWeather(weathersEntry: WeatherEntry)
+    @Query("DELETE FROM weather")
+    fun deleteAll()
 
-    @Delete
-    fun deleteWeather(weatherEntry: WeatherEntry)
-
-    @Query("SELECT * FROM weather WHERE weather_id = :uid")
+    @Query("SELECT * FROM weather WHERE uid = :uid")
     fun loadWeatherById(uid: Int): LiveData<WeatherEntry>
 }

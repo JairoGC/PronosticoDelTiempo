@@ -17,7 +17,7 @@ class ForecastAdapter(private val mContext: Context, val mClickHandler: Forecast
     private var mWeatherData: List<WeatherEntry> = listOf()
 
     interface ForecastAdapterOnClickHandler {
-        fun onClick(weatherId: Int?)
+        fun onClick(uid: Int?)
     }
 
     inner class ForecastAdapterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
@@ -31,7 +31,7 @@ class ForecastAdapter(private val mContext: Context, val mClickHandler: Forecast
 
         override fun onClick(p0: View?) {
             val weatherEntry = mWeatherData[adapterPosition]
-            mClickHandler.onClick(weatherEntry.weather_id)
+            mClickHandler.onClick(weatherEntry.uid)
         }
     }
 

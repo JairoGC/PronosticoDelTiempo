@@ -45,8 +45,8 @@ class DetailActivity : AppCompatActivity() {
         mPressureView = findViewById(R.id.pressure)
 
         if (intent.hasExtra(Intent.EXTRA_TEXT)) {
-            val mWeatherId = intent.getIntExtra(Intent.EXTRA_TEXT,0)
-            this.loaderWeather(mWeatherId)
+            val uid = intent.getIntExtra(Intent.EXTRA_TEXT,0)
+            this.loaderWeather(uid)
         }
     }
 
@@ -57,8 +57,8 @@ class DetailActivity : AppCompatActivity() {
         return true
     }
 
-    private fun loaderWeather(mWeatherId: Int){
-        val factory = WeatherViewModelFactory(AppDatabase.getInstance(applicationContext), mWeatherId)
+    private fun loaderWeather(uid: Int){
+        val factory = WeatherViewModelFactory(AppDatabase.getInstance(applicationContext), uid)
         val viewModel = ViewModelProvider(this, factory).get(WeatherViewModel::class.java)
 
         viewModel.getWeather().observe(this, object : Observer<WeatherEntry?> {
@@ -72,32 +72,32 @@ class DetailActivity : AppCompatActivity() {
     }
 
     fun populateUI(weatherEntry: WeatherEntry){
-        val localDateMidnightGmt: Long = weatherEntry.date.time
+        val localDateMidnightGmt = weatherEntry.date.time
         val dateText = getFriendlyDateString(this, localDateMidnightGmt, true)
         mDateView.text = dateText
 
-        val weatherId: Int = weatherEntry.weather_id?:0
+        val weatherId = weatherEntry.weather_id?:0
         val description = getStringForWeatherCondition(this, weatherId)
         mDescriptionView.text = description
 
-        val highInCelsius: Double = weatherEntry.max
+        val highInCelsius = weatherEntry.max
         val highString = formatTemperature(this, highInCelsius)
         mHighTemperatureView.text = highString
 
-        val lowInCelsius: Double =  weatherEntry.min
+        val lowInCelsius =  weatherEntry.min
         val lowString = formatTemperature(this, lowInCelsius)
         mLowTemperatureView.text = lowString
 
-        val humidity: Double = weatherEntry.humidity
+        val humidity = weatherEntry.humidity
         val humidityString = getString(R.string.format_humidity, humidity)
         mHumidityView.text = humidityString
 
-        val windSpeed: Double = weatherEntry.wind
-        val windDirection: Double = weatherEntry.degrees
+        val windSpeed = weatherEntry.wind
+        val windDirection = weatherEntry.degrees
         val windString = getFormattedWind(this, windSpeed, windDirection)
         mWindView.text = windString
 
-        val pressure: Double = weatherEntry.pressure
+        val pressure = weatherEntry.pressure
         val pressureString = getString(R.string.format_pressure, pressure)
         mPressureView.text = pressureString
 

@@ -6,23 +6,16 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.AsyncTaskLoader
-import androidx.loader.content.Loader
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sunshinekotlin.data.SunshinePreferences
-import com.example.sunshinekotlin.model.ForecastViewModel
 import com.example.sunshinekotlin.data.SunshinePreferences.getPreferredWeatherLocation
-import com.example.sunshinekotlin.sync.WeatherIntentService
-import com.example.sunshinekotlin.utilities.NetworkUtils
-import com.example.sunshinekotlin.utilities.OpenWeatherJsonUtils
+import com.example.sunshinekotlin.model.ForecastViewModel
+import com.example.sunshinekotlin.sync.SunshineSyncIntentService
+import com.example.sunshinekotlin.sync.SunshineSyncUtils
 
 class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
 
@@ -46,7 +39,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         mRecyclerView.adapter = mForecastAdapter
 
         this.setupViewModel()
-        this.syncWeather()
+        SunshineSyncUtils.startImmediateSync(this)
     }
 
     private fun setupViewModel() {
@@ -56,14 +49,9 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
         })
     }
 
-    private fun syncWeather() {
-        val incrementWaterCountIntent = Intent(this, WeatherIntentService::class.java)
-        startService(incrementWaterCountIntent)
-    }
-
-    override fun onClick(weatherId: Int?) {
+    override fun onClick(uid: Int?) {
         val intentToStartDetailActivity = Intent(this, DetailActivity::class.java)
-        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherId)
+        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, uid)
         startActivity(intentToStartDetailActivity)
     }
 

@@ -1,12 +1,17 @@
 package com.example.sunshinekotlin.utilities
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
+import com.example.sunshinekotlin.data.SunshinePreferences.getLocationCoordinates
+import com.example.sunshinekotlin.data.SunshinePreferences.getPreferredWeatherLocation
+import com.example.sunshinekotlin.data.SunshinePreferences.isLocationLatLonAvailable
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
-import android.net.Uri;
-import android.util.Log
-import java.net.MalformedURLException
+
 
 object NetworkUtils{
 
@@ -27,6 +32,19 @@ object NetworkUtils{
     val UNITS_PARAM = "units"
     val DAYS_PARAM = "cnt"
 
+    fun getUrl(context: Context): URL? {
+        return if (isLocationLatLonAvailable(context)) {
+            val preferredCoordinates = getLocationCoordinates(context)
+            val latitude = preferredCoordinates[0]
+            val longitude = preferredCoordinates[1]
+            buildUrl(latitude, longitude)
+        } else {
+            val locationQuery =
+                getPreferredWeatherLocation(context)
+            buildUrl(locationQuery)
+        }
+    }
+
     fun buildUrl(locationQuery: String): URL? {
         val builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
             .appendQueryParameter(QUERY_PARAM, locationQuery)
@@ -35,19 +53,33 @@ object NetworkUtils{
             .appendQueryParameter(DAYS_PARAM, numDays.toString())
             .build()
 
-        var url: URL? = null
-        try {
-            url = URL(builtUri.toString())
+        return try {
+            val url = URL(builtUri.toString())
+            Log.v(TAG, "Built URL: $url")
+            url
         } catch (e: MalformedURLException) {
             e.printStackTrace()
+            null
         }
-        Log.v(TAG, "Built URI " + url?.toString())
-        return url
     }
 
-    fun buildUrl(lat: Double?, lon: Double?): URL? {
-        /** This will be implemented in a future lesson  */
-        return null
+    fun buildUrl(latitude: Double?, longitude: Double?): URL? {
+        val weatherQueryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+            .appendQueryParameter(LAT_PARAM, java.lang.String.valueOf(latitude))
+            .appendQueryParameter(LON_PARAM, java.lang.String.valueOf(longitude))
+            .appendQueryParameter(FORMAT_PARAM, format)
+            .appendQueryParameter(UNITS_PARAM, units)
+            .appendQueryParameter(DAYS_PARAM, numDays.toString())
+            .build()
+
+        return try {
+            val weatherQueryUrl = URL(weatherQueryUri.toString())
+            Log.v(TAG, "Built URL: $weatherQueryUrl")
+            weatherQueryUrl
+        } catch (e: MalformedURLException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     @Throws(IOException::class)

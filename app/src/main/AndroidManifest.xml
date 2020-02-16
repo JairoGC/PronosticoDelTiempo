@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".sync.WeatherIntentService" android:exported="false"/>
+        <service android:name=".sync.SunshineSyncIntentService" android:exported="false"/>
     </application>
 
 </manifest>

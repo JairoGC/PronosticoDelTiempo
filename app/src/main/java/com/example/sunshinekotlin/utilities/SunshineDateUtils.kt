@@ -5,7 +5,7 @@ import android.text.format.DateUtils
 import com.example.sunshinekotlin.R
 import java.text.SimpleDateFormat
 import java.util.*
-
+import java.util.concurrent.TimeUnit
 
 object SunshineDateUtils{
 
@@ -13,6 +13,18 @@ object SunshineDateUtils{
     const val MINUTE_IN_MILLIS = SECOND_IN_MILLIS * 60
     const val HOUR_IN_MILLIS = MINUTE_IN_MILLIS * 60
     const val DAY_IN_MILLIS = HOUR_IN_MILLIS * 24
+
+
+    fun getNormalizedUtcDateForToday(): Long {
+        val utcNowMillis = System.currentTimeMillis()
+        val currentTimeZone = TimeZone.getDefault()
+        val gmtOffsetMillis = currentTimeZone.getOffset(utcNowMillis).toLong()
+
+        val timeSinceEpochLocalTimeMillis = utcNowMillis + gmtOffsetMillis
+        val daysSinceEpochLocal: Long = TimeUnit.MILLISECONDS.toDays(timeSinceEpochLocalTimeMillis)
+
+        return TimeUnit.DAYS.toMillis(daysSinceEpochLocal)
+    }
 
     fun getDayNumber(date: Long): Long {
         val tz = TimeZone.getDefault()

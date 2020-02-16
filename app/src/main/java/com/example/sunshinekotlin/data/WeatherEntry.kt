@@ -5,7 +5,8 @@ import java.util.*
 
 @Entity(tableName = "weather")
 data class WeatherEntry(
-    @PrimaryKey(autoGenerate = true) var weather_id: Int?,
+    @PrimaryKey(autoGenerate = true) var uid: Int?,
+    @ColumnInfo(name = "weather_id") val weather_id: Int,
     @ColumnInfo(name = "min") val min: Double,
     @ColumnInfo(name = "max") val max: Double,
     @ColumnInfo(name = "wind") val wind: Double,
@@ -15,8 +16,9 @@ data class WeatherEntry(
     @ColumnInfo(name = "date", index = true) val date: Date
 ) {
     @Ignore
-    constructor(min: Double, max: Double, wind: Double, humidity: Double, pressure:Double, degrees:Double, date: Date) : this(
+    constructor(weather_id: Int, min: Double, max: Double, wind: Double, humidity: Double, pressure:Double, degrees:Double, date: Date) : this(
         null,
+        weather_id,
         min,
         max,
         wind,

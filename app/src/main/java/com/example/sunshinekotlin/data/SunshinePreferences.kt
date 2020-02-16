@@ -1,6 +1,7 @@
 package com.example.sunshinekotlin.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.example.sunshinekotlin.R
 
@@ -16,8 +17,14 @@ object SunshinePreferences{
 
     private val DEFAULT_MAP_LOCATION = "1600 Amphitheatre Parkway, Mountain View, CA 94043"
 
-    fun setLocationDetails(c: Context, cityName: String, lat: Double, lon: Double) {
-        /** This will be implemented in a future lesson  */
+    fun setLocationDetails(context: Context, lat: Double, lon: Double) {
+        var sp: SharedPreferences? =
+            PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = sp!!.edit()
+
+        editor.putLong(PREF_COORD_LAT, java.lang.Double.doubleToRawLongBits(lat))
+        editor.putLong(PREF_COORD_LONG, java.lang.Double.doubleToRawLongBits(lon))
+        editor.apply()
     }
 
     fun setLocation(c: Context, locationSetting: String, lat: Double, lon: Double) {
