@@ -67,8 +67,45 @@ object SunshinePreferences{
         return DEFAULT_WEATHER_LOCATION
     }
 
+    fun areNotificationsEnabled(context: Context): Boolean {
+        val displayNotificationsKey =
+            context.getString(R.string.pref_enable_notifications_key)
+
+        val shouldDisplayNotificationsByDefault = context
+            .resources
+            .getBoolean(R.bool.show_notifications_by_default)
+
+        val sp =
+            PreferenceManager.getDefaultSharedPreferences(context)
+
+        return sp
+            .getBoolean(displayNotificationsKey, shouldDisplayNotificationsByDefault)
+    }
+
     fun getDefaultWeatherCoordinates(): DoubleArray {
         /** This will be implemented in a future lesson  */
         return DEFAULT_WEATHER_COORDINATES
+    }
+
+    fun getLastNotificationTimeInMillis(context: Context): Long {
+        val lastNotificationKey = context.getString(R.string.pref_last_notification)
+        val sp =
+            PreferenceManager.getDefaultSharedPreferences(context)
+        return sp.getLong(lastNotificationKey, 0)
+    }
+
+    fun getEllapsedTimeSinceLastNotification(context: Context?): Long {
+        val lastNotificationTimeMillis =
+            getLastNotificationTimeInMillis(context!!)
+        return System.currentTimeMillis() - lastNotificationTimeMillis
+    }
+
+    fun saveLastNotificationTime(context: Context, timeOfNotification: Long) {
+        val sp = PreferenceManager
+            .getDefaultSharedPreferences(context)
+        val editor = sp.edit()
+        val lastNotificationKey = context.getString(R.string.pref_last_notification)
+        editor.putLong(lastNotificationKey, timeOfNotification)
+        editor.apply()
     }
 }

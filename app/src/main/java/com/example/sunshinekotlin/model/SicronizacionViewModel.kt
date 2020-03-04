@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 class SicronizacionViewModel (application: Application) : AndroidViewModel(application){
 
-    private val SYNC_INTERVAL_HOURS: Long = 3
+    private val SYNC_INTERVAL_HOURS: Long = 6
     private val SYNC_FLEXTIME_HOURS = SYNC_INTERVAL_HOURS / 3
 
     private val SUNSHINE_SYNC_TAG = "sunshine-sync"
