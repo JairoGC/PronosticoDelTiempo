@@ -14,7 +14,6 @@ object SunshineDateUtils{
     const val HOUR_IN_MILLIS = MINUTE_IN_MILLIS * 60
     const val DAY_IN_MILLIS = HOUR_IN_MILLIS * 24
 
-
     fun getNormalizedUtcDateForToday(): Long {
         val utcNowMillis = System.currentTimeMillis()
         val currentTimeZone = TimeZone.getDefault()
