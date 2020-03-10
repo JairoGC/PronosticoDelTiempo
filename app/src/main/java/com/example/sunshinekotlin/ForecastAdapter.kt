@@ -16,6 +16,10 @@ import com.example.sunshinekotlin.utilities.SunshineWeatherUtils.getStringForWea
 
 class ForecastAdapter(private val mContext: Context, val mClickHandler: ForecastAdapterOnClickHandler) : RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>(){
 
+    private val VIEW_TYPE_TODAY = 0
+    private val VIEW_TYPE_FUTURE_DAY = 1
+    private var mUseTodayLayout = mContext.resources.getBoolean(R.bool.use_today_layout)
+
     private var mWeatherData: List<WeatherEntry> = listOf()
 
     interface ForecastAdapterOnClickHandler {
@@ -45,7 +49,17 @@ class ForecastAdapter(private val mContext: Context, val mClickHandler: Forecast
         val inflater = LayoutInflater.from(parent.context)
         val shouldAttachToParentImmediately = false
 
-        val view = inflater.inflate(R.layout.forecast_list_item, parent, shouldAttachToParentImmediately)
+        val layoutId = when (viewType) {
+            VIEW_TYPE_TODAY -> {
+                R.layout.list_item_forecast_today
+            }
+            VIEW_TYPE_FUTURE_DAY -> {
+                R.layout.forecast_list_item
+            }
+            else -> throw IllegalArgumentException("Invalid view type, value of $viewType")
+        }
+
+        val view = inflater.inflate(layoutId, parent, shouldAttachToParentImmediately)
         return ForecastAdapterViewHolder(view)
     }
 
@@ -54,8 +68,14 @@ class ForecastAdapter(private val mContext: Context, val mClickHandler: Forecast
 
         val weatherId = weatherEntry.weather_id
 
-        val weatherImageId = SunshineWeatherUtils
-            .getIconResourceForWeatherCondition(weatherId)
+        val viewType = getItemViewType(position)
+        var weatherImageId = when (viewType) {
+            VIEW_TYPE_TODAY -> SunshineWeatherUtils
+                .getArtResourceForWeatherCondition(weatherId)
+            VIEW_TYPE_FUTURE_DAY -> SunshineWeatherUtils
+                .getIconResourceForWeatherCondition(weatherId)
+            else -> throw java.lang.IllegalArgumentException("Invalid view type, value of $viewType")
+        }
 
         val dateInMillis: Long = weatherEntry.date.time
         val dateString = getFriendlyDateString(mContext, dateInMillis, false)
@@ -84,6 +104,14 @@ class ForecastAdapter(private val mContext: Context, val mClickHandler: Forecast
 
     override fun getItemCount(): Int {
         return mWeatherData.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (mUseTodayLayout && position == 0) {
+            VIEW_TYPE_TODAY;
+        } else {
+            VIEW_TYPE_FUTURE_DAY;
+        }
     }
 
     fun setWeatherData(weatherData: List<WeatherEntry>) {
