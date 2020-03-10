@@ -17,12 +17,10 @@ object SunshineWeatherUtils{
 
     fun formatTemperature(context: Context, temperature: Double): String {
         var temperature = temperature
-        var temperatureFormatResourceId = R.string.format_temperature_celsius
-
         if (!SunshinePreferences.isMetric(context)) {
             temperature = celsiusToFahrenheit(temperature)
-            temperatureFormatResourceId = R.string.format_temperature_fahrenheit
         }
+        var temperatureFormatResourceId = R.string.format_temperature
         return String.format(context.getString(temperatureFormatResourceId), temperature)
     }
 
@@ -154,8 +152,16 @@ object SunshineWeatherUtils{
             return R.drawable.ic_light_clouds
         } else if (weatherId in 802..804) {
             return R.drawable.ic_cloudy
+        }else if (weatherId in 900..906) {
+            return R.drawable.ic_storm;
+        } else if (weatherId in 958..962) {
+            return R.drawable.ic_storm;
+        } else if (weatherId in 951..957) {
+            return R.drawable.ic_clear;
         }
-        return -1
+
+        Log.e(LOG_TAG, "Unknown Weather: " + weatherId);
+        return R.drawable.ic_storm;
     }
 
     fun getArtResourceForWeatherCondition(weatherId: Int): Int {
