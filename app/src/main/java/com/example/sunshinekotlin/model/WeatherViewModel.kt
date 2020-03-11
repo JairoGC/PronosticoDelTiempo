@@ -6,7 +6,7 @@ import com.example.sunshinekotlin.data.AppDatabase
 import com.example.sunshinekotlin.data.WeatherEntry
 
 class WeatherViewModel(database: AppDatabase, uid: Int) : ViewModel() {
-    private val weather: LiveData<WeatherEntry> = database.weatherDao().loadWeatherById(uid)
+    private val weather: LiveData<WeatherEntry> = database.weatherDao().loadByIdLiveData(uid)
 
     fun getWeather(): LiveData<WeatherEntry> {
         return weather

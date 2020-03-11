@@ -3,7 +3,13 @@ package com.example.sunshinekotlin
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
-import androidx.preference.*
+import androidx.preference.CheckBoxPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import com.example.sunshinekotlin.data.SunshinePreferences
+import com.example.sunshinekotlin.sync.SunshineSyncTask
+import com.example.sunshinekotlin.sync.SunshineSyncUtils
 
 class SettingsFragment : PreferenceFragmentCompat(),
     OnSharedPreferenceChangeListener {
@@ -45,16 +51,21 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     override fun onSharedPreferenceChanged(
-        sharedPreferences: SharedPreferences?,
-        key: String?
+        sharedPreferences: SharedPreferences,
+        key: String
     ) {
-        val preference: Preference? = key?.let { findPreference(it) }
+        if (key == getString(R.string.pref_location_key)) {
+            SunshinePreferences.resetLocationCoordinates(this.requireContext())
+            SunshineSyncUtils.startImmediateSync(this.requireContext());
+        }else if (key == getString(R.string.pref_units_key)) {
+            SunshineSyncTask.refresh(this.requireContext())
+        }
+
+        val preference: Preference? = findPreference(key)
         if (null != preference) {
             if (preference !is CheckBoxPreference) {
-                sharedPreferences?.let {
-                    val value: String = it.getString(preference.key, "")?:""
-                    setPreferenceSummary(preference, value)
-                }
+                val value: String = sharedPreferences.getString(preference.key, "")?:""
+                setPreferenceSummary(preference, value)
             }
         }
     }

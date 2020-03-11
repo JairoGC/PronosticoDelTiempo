@@ -70,9 +70,7 @@ object NotificationUtils {
     }
 
     private fun weatherToday(context: Context): WeatherEntry? {
-        val normalizedUtcStartDay: Long = SunshineDateUtils.getNormalizedUtcDateForToday()
-        val date = Date(normalizedUtcStartDay)
-
+        val date = SunshineDateUtils.getNormalizedDateForToday()
         val database = AppDatabase.getInstance(context)
         return database.weatherDao().loadWeatherByDate(date)
     }

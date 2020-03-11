@@ -1,20 +1,23 @@
 package com.example.sunshinekotlin.data
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import java.util.*
 
 @Dao
 interface WeatherDao {
 
-    @Query("SELECT * FROM weather ORDER BY date")
-    fun loadAllWeathers(): LiveData<List<WeatherEntry>>
+    @Query("SELECT * FROM weather WHERE date >= :date ORDER BY date")
+    fun loadByDateGreaterEqualLiveData(date: Date): LiveData<List<WeatherEntry>>
+
+    @Query("SELECT * FROM weather WHERE date >= :date ORDER BY date")
+    fun loadByDateGreaterEqual(date: Date): List<WeatherEntry>
+
+/*    @Query("SELECT * FROM weather WHERE date >= :date ORDER BY date")
+    fun loadWeathersByDateGreaterEqual(date: Date): List<WeatherEntry>*/
 
     @Query("SELECT * FROM weather WHERE uid = :uid")
-    fun loadWeatherById(uid: Int): LiveData<WeatherEntry>
+    fun loadByIdLiveData(uid: Int): LiveData<WeatherEntry>
 
     @Query("SELECT * FROM weather WHERE date = :date")
     fun loadWeatherByDate(date: Date): WeatherEntry?

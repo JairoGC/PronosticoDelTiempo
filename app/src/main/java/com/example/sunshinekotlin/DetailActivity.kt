@@ -33,8 +33,8 @@ class DetailActivity : AppCompatActivity() {
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail)
 
         if (intent.hasExtra(Intent.EXTRA_TEXT)) {
-            val uid = intent.getIntExtra(Intent.EXTRA_TEXT,0)
-            this.loaderWeather(uid)
+            val uid = intent.getIntExtra(Intent.EXTRA_TEXT, 0)
+            this.setupViewModel(uid)
         }
     }
 
@@ -45,21 +45,15 @@ class DetailActivity : AppCompatActivity() {
         return true
     }
 
-    private fun loaderWeather(uid: Int){
+    private fun setupViewModel(uid: Int) {
         val factory = WeatherViewModelFactory(AppDatabase.getInstance(applicationContext), uid)
         val viewModel = ViewModelProvider(this, factory).get(WeatherViewModel::class.java)
-
-        viewModel.getWeather().observe(this, object : Observer<WeatherEntry?> {
-            override fun onChanged(taskEntry: WeatherEntry?) {
-                if (taskEntry != null) {
-                    viewModel.getWeather().removeObserver(this)
-                    populateUI(taskEntry)
-                }
-            }
+        viewModel.getWeather().observe(this, Observer {
+            populateUI(it)
         })
     }
 
-    fun populateUI(weatherEntry: WeatherEntry){
+    private fun populateUI(weatherEntry: WeatherEntry) {
         val weatherId: Int = weatherEntry.weather_id
 
         val weatherImageId: Int = SunshineWeatherUtils.getArtResourceForWeatherCondition(weatherId)
@@ -74,7 +68,7 @@ class DetailActivity : AppCompatActivity() {
         val highString = formatTemperature(this, highInCelsius)
         val highA11y = getString(R.string.a11y_high_temp, highString)
 
-        val lowInCelsius =  weatherEntry.min
+        val lowInCelsius = weatherEntry.min
         val lowString = formatTemperature(this, lowInCelsius)
         val lowA11y = getString(R.string.a11y_low_temp, lowString)
 
@@ -110,13 +104,14 @@ class DetailActivity : AppCompatActivity() {
         mDetailBinding.extraDetails.pressure.contentDescription = pressureA11y;
         mDetailBinding.extraDetails.pressureLabel.contentDescription = pressureA11y;
 
-        mForecastSummary = String.format("%s - %s - %s/%s", dateText, description, highString, lowString)
+        mForecastSummary =
+            String.format("%s - %s - %s/%s", dateText, description, highString, lowString)
     }
 
     private fun createShareForecastIntent(): Intent {
         return ShareCompat.IntentBuilder.from(this)
             .setType("text/plain")
-            .setText(mForecastSummary?:"" + FORECAST_SHARE_HASHTAG)
+            .setText(mForecastSummary ?: "" + FORECAST_SHARE_HASHTAG)
             .intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
     }
 
@@ -126,7 +121,8 @@ class DetailActivity : AppCompatActivity() {
                 val startSettingsActivity = Intent(this, SettingsActivity::class.java)
                 startActivity(startSettingsActivity)
                 return true
-            }else -> super.onOptionsItemSelected(item)
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

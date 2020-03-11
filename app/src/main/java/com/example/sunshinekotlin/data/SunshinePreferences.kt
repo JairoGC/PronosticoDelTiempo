@@ -18,9 +18,9 @@ object SunshinePreferences{
     private val DEFAULT_MAP_LOCATION = "1600 Amphitheatre Parkway, Mountain View, CA 94043"
 
     fun setLocationDetails(context: Context, lat: Double, lon: Double) {
-        var sp: SharedPreferences? =
+        var sp: SharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = sp!!.edit()
+        val editor = sp.edit()
 
         editor.putLong(PREF_COORD_LAT, java.lang.Double.doubleToRawLongBits(lat))
         editor.putLong(PREF_COORD_LONG, java.lang.Double.doubleToRawLongBits(lon))
@@ -31,8 +31,14 @@ object SunshinePreferences{
         /** This will be implemented in a future lesson  */
     }
 
-    fun resetLocationCoordinates(c: Context) {
-        /** This will be implemented in a future lesson  */
+    fun resetLocationCoordinates(context: Context) {
+        val sp = PreferenceManager
+            .getDefaultSharedPreferences(context)
+        val editor = sp.edit()
+
+        editor.remove(PREF_COORD_LAT)
+        editor.remove(PREF_COORD_LONG)
+        editor.apply()
     }
 
     fun getPreferredWeatherLocation(context: Context): String {

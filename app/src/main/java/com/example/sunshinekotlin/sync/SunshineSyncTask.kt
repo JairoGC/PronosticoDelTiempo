@@ -1,8 +1,8 @@
 package com.example.sunshinekotlin.sync
 
 import android.content.Context
+import android.os.AsyncTask
 import android.text.format.DateUtils
-import android.util.Log
 import com.example.sunshinekotlin.data.AppDatabase
 import com.example.sunshinekotlin.data.SunshinePreferences
 import com.example.sunshinekotlin.data.WeatherEntry
@@ -11,8 +11,6 @@ import com.example.sunshinekotlin.utilities.NetworkUtils.getResponseFromHttpUrl
 import com.example.sunshinekotlin.utilities.NotificationUtils
 import com.example.sunshinekotlin.utilities.OpenWeatherJsonUtils
 import com.example.sunshinekotlin.utilities.SunshineDateUtils
-import java.util.*
-
 
 object SunshineSyncTask {
 
@@ -41,6 +39,19 @@ object SunshineSyncTask {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    @Synchronized
+    fun refresh(context: Context) {
+        object : AsyncTask<Unit, Unit, Unit>() {
+            override fun doInBackground(vararg p0: Unit) {
+                val database = AppDatabase.getInstance(context)
+                val date = SunshineDateUtils.getNormalizedDateForToday()
+                val weatherList = database.weatherDao().loadByDateGreaterEqual(date)
+                database.weatherDao().deleteAll()
+                database.weatherDao().insertWeather(weatherList)
+            }
+        }.execute()
     }
 
 }

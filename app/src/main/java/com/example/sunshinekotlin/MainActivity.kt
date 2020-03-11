@@ -10,16 +10,14 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sunshinekotlin.data.SunshinePreferences.getPreferredWeatherLocation
 import com.example.sunshinekotlin.model.ForecastViewModel
 import com.example.sunshinekotlin.model.SicronizacionViewModel
-import com.example.sunshinekotlin.sync.SunshineSyncIntentService
 import com.example.sunshinekotlin.sync.SunshineSyncUtils
 
-class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler {
+class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClickHandler{
 
     private val TAG = MainActivity::class.java.simpleName
 
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity(), ForecastAdapter.ForecastAdapterOnClick
 
     private fun setupViewModel() {
         val forecastViewModel = ViewModelProvider(this).get(ForecastViewModel::class.java)
-        forecastViewModel.getTasks().observe(this, Observer {
+        forecastViewModel.getWeathers().observe(this, Observer {
             mForecastAdapter.setWeatherData(it)
         })
 

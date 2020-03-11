@@ -25,7 +25,12 @@ object SunshineDateUtils{
         return TimeUnit.DAYS.toMillis(daysSinceEpochLocal)
     }
 
-    fun getDayNumber(date: Long): Long {
+    fun getNormalizedDateForToday(): Date {
+        val normalizedUtcStartDay: Long = getNormalizedUtcDateForToday()
+        return Date(normalizedUtcStartDay)
+    }
+
+    private fun getDayNumber(date: Long): Long {
         val tz = TimeZone.getDefault()
         val gmtOffset = tz.getOffset(date)
         return (date.plus(gmtOffset)).div(DAY_IN_MILLIS)
@@ -35,7 +40,7 @@ object SunshineDateUtils{
         return date.div(DAY_IN_MILLIS).times(DAY_IN_MILLIS)
     }
 
-    fun getLocalDateFromUTC(utcDate: Long): Long {
+    private fun getLocalDateFromUTC(utcDate: Long): Long {
         val tz = TimeZone.getDefault()
         val gmtOffset = tz.getOffset(utcDate)
         return utcDate.minus(gmtOffset)
